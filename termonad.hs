@@ -22,18 +22,17 @@ import Numeric (readHex)
 makeColour :: [Char] -> AlphaColour Double
 makeColour str = let uncurry3 f [r,g,b] = f r g b
                  in uncurry3 createColour (colourFromStr str)
-                    where colourFromStr (x:xs) = let rgb     = [ take 2 xs
-                                                               , take 2 $ drop 2 xs
-                                                               , take 2 $ drop 4 xs
-                                                               ]
-                                                     dec hex = [(fst . head . readHex) hex]
-                                                 in rgb >>= dec
+                    where colourFromStr (x:xs) = let rgb = [ take 2 xs
+                                                           , take 2 $ drop 2 xs
+                                                           , take 2 $ drop 4 xs
+                                                           ]
+                                                     dec = fst . head . readHex
+                                                 in dec <$> rgb
 
 
 -- | Converts a list of hex strings to the List8 of colours.
 makeColourTable :: [[Char]] -> List8 (AlphaColour Double)
-makeColourTable xs = unsafeMkList8 $
-                     (\colourStr -> [makeColour colourStr]) =<< xs
+makeColourTable xs = unsafeMkList8 $ makeColour <$> xs
 
 
 -- | This sets the foreground colour of the cursor in the terminal.
